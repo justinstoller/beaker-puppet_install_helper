@@ -48,8 +48,9 @@ module Beaker::PuppetInstallHelper
       if hosts_with_role(hosts, 'master').length>0 then
         # TODO Make the puppetserver code work with puppet5/puppet6
         # install puppetserver
-        install_puppetlabs_release_repo( master, 'pc1' )
+        install_puppetlabs_release_repo( master, ENV['BEAKER_PUPPET_COLLECTION'] || 'pc1')
         master.install_package('puppetserver')
+        on(master, 'puppetserver ca generate')
         on(master, puppet('resource', 'service', 'puppetserver', 'ensure=running'))
         agents.each do |agent|
           on(agent, puppet('resource', 'host', 'puppet', 'ensure=present', "ip=#{master.get_ip}"))
